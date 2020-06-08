@@ -21,7 +21,7 @@ class ProjectController {
     return project;
   }
 
-  async destroy({ auth, request, params, response }) {
+  async destroy({ auth, params }) {
     const user = await auth.getUser();
     const { id } = params;
     const project = await Project.find(id);
@@ -30,6 +30,20 @@ class ProjectController {
 
     await project.delete();
     return { message: "Deletion successful " };
+  }
+
+  async update({ auth, params, request }) {
+    const user = await auth.getUser();
+    const { id } = params;
+    const project = await Project.find(id);
+
+    AuthService.verifyPermission(project, user);
+
+    project.merge(request.only("title"));
+
+    await project.save();
+
+    return project;
   }
 }
 
